@@ -6,13 +6,23 @@
 
 #define NUM_STEPS 10
 #define NUM_FISH 5
+#define FISH_WEIGHT 15
 
 // Declare structure for fish, holding coordinates (for now)
 typedef struct _fish {
     int x;
     int y;
-    double weight; 
+    double prev_f_i;
+    double f_i;
+    double delta_f_i;
+    double prev_weight;
+    double weight;  
 } FISH;
+
+double calc_euc_dist (FISH fish)
+{
+    return sqrt(pow((double)fish.x, 2) + pow((double)fish.y, 2));
+}
 
 double obj_func (FISH* fishes) 
 {
@@ -22,10 +32,7 @@ double obj_func (FISH* fishes)
 
     for (int i = 0; i < NUM_FISH; i++)
     {
-        pre_root_val = pow((double)fishes[i].x, 2) + pow((double)fishes[i].y, 2);
-        post_root_val = sqrt((double) pre_root_val);
-
-        total_sum += post_root_val;
+        total_sum += calc_euc_dist(fishes[i]);
     }
 
     return total_sum;
@@ -60,6 +67,8 @@ void main(int argc, char* argv[])
 
         fishes[i].x = x_rand_num;
         fishes[i].y = y_rand_num;
+        fishes[i].current_weight = FISH_WEIGHT; 
+        fishes[i].f_i = calc_euc_dist(fishes[i]);
 
         printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
     }
