@@ -6,7 +6,7 @@
 
 #define NUM_STEPS 10
 #define NUM_FISH 5
-#define FISH_WEIGHT 15
+#define FISH_INIT_WEIGHT 15
 
 // Declare structure for fish, holding coordinates (for now)
 typedef struct _fish {
@@ -18,6 +18,20 @@ typedef struct _fish {
     double prev_weight;
     double weight;  
 } FISH;
+
+//TODO Collective Action
+
+void swim(FISH fish)
+{
+    int random_x_int = rand() % 201;
+    int random_y_int = rand() % 201;
+
+    double random_x_movement = (random_x_int / 1000.0) - 0.1;
+    double random_y_movement = (random_y_int / 1000.0) - 0.1;
+
+    fish.x = fish.x + random_x_movement;
+    fish.y = fish.y + random_y_movement; 
+}
 
 double calc_euc_dist (FISH fish)
 {
@@ -34,7 +48,7 @@ double obj_func (FISH* fishes)
     {
         total_sum += calc_euc_dist(fishes[i]);
     }
-
+    
     return total_sum;
 }
 
@@ -67,7 +81,7 @@ void main(int argc, char* argv[])
 
         fishes[i].x = x_rand_num;
         fishes[i].y = y_rand_num;
-        fishes[i].current_weight = FISH_WEIGHT; 
+        fishes[i].weight = FISH_INIT_WEIGHT; 
         fishes[i].f_i = calc_euc_dist(fishes[i]);
 
         printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
@@ -77,6 +91,22 @@ void main(int argc, char* argv[])
     {
         double total_sum = obj_func(fishes);
 
+        if (i == 0)
+        {
+            printf("Calculating the weight function...");
+
+            sasa
+        }
+
+        for (int j = 0; j < NUM_FISH; j++)
+        {
+            /**
+             * Loop - for each fish:
+             * - Calculate the weight
+             * - 
+             */
+            
+        }
         printf("Objective function at Step %d: %.2f\n", i+1, total_sum);
     }
 
