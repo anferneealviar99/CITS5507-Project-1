@@ -10,6 +10,8 @@
 
 // Declare structure for fish, holding coordinates (for now)
 typedef struct _fish {
+    int prev_x;
+    int prev_y;
     int x;
     int y;
     double prev_f_i;
@@ -29,8 +31,21 @@ void swim(FISH fish)
     double random_x_movement = (random_x_int / 1000.0) - 0.1;
     double random_y_movement = (random_y_int / 1000.0) - 0.1;
 
+    fish.prev_x = fish.x;
+    fish.prev_y = fish.y;
+
     fish.x = fish.x + random_x_movement;
     fish.y = fish.y + random_y_movement; 
+}
+
+double weight_function_calc (FISH* fishes)
+{
+    double weight_func_val;
+
+    // Calculate the quotient of a fish's change in objective function 
+    // and the maximum change in objective function when accounting for all fish 
+
+    return weight_func_val;
 }
 
 double calc_euc_dist (FISH fish)
@@ -87,6 +102,7 @@ void main(int argc, char* argv[])
         printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
     }
 
+    int weight_func = 0;
     for (int i = 0; i < NUM_STEPS; i++)
     {
         double total_sum = obj_func(fishes);
@@ -94,17 +110,22 @@ void main(int argc, char* argv[])
         if (i == 0)
         {
             printf("Calculating the weight function...");
-
-            sasa
+            
+            weight_func = rand() % 5 - 1;   
+        }
+        else
+        {
+            // Calculate the objective functions to get the weight function 
         }
 
         for (int j = 0; j < NUM_FISH; j++)
         {
-            /**
-             * Loop - for each fish:
-             * - Calculate the weight
-             * - 
-             */
+            // FOR EACH FISH
+
+            // ADD WEIGHT TO THE FISH USING THE WEIGHT FUNCTION
+            
+
+
             
         }
         printf("Objective function at Step %d: %.2f\n", i+1, total_sum);
