@@ -72,19 +72,23 @@ double calc_euc_dist (FISH fish)
 
 double obj_func (FISH* fishes) 
 {
-    double total_sum;
+    double total_sum = 0;
     int pre_root_val;
     double post_root_val;
 
     for (int i = 0; i < NUM_FISH; i++)
     {
-        total_sum += calc_euc_dist(fishes[i]);
+        // total_sum += calc_euc_dist(fishes[i]);
+        double distance = (double)(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
+        fishes[i].f_i = NUM_FISH * distance;
+        total_sum += fishes[i].f_i;
     }
     
     return total_sum;
 }
 
-void main(int argc, char* argv[])
+// void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     FISH *fishes;
 
@@ -128,7 +132,8 @@ void main(int argc, char* argv[])
         {
             printf("Calculating the weight function...");
             
-            weight_func = rand() % 5 - 1;   
+            // weight_func = rand() % 5 - 1;
+            weight_func = weight_function_calc(fishes);   
         }
         else
         {
@@ -151,6 +156,8 @@ void main(int argc, char* argv[])
     clock_t end = clock();
 
     double time_spent = (double) (end-begin) / CLOCKS_PER_SEC;
+
+    free(fishes);
 
     printf("Time spent: %.2f\n", time_spent); 
 }
