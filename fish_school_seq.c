@@ -40,10 +40,27 @@ void swim(FISH fish)
 
 double weight_function_calc (FISH* fishes)
 {
-    double weight_func_val;
+    // double weight_func_val;
 
     // Calculate the quotient of a fish's change in objective function 
     // and the maximum change in objective function when accounting for all fish 
+
+    double maxDelta = 0.0;
+
+    // Calculate the maximum change in the objective function
+    for (int i = 0; i < NUM_FISH; i++) {
+        double delta_f_i = fabs(fishes[i].delta_f_i);
+        if (delta_f_i > maxDelta) {
+            maxDelta = delta_f_i;
+        }
+    }
+
+    // Calculate the weight function value for all fish
+    double weight_func_val = 0.0;
+    for (int i = 0; i < NUM_FISH; i++) {
+        fishes[i].weight = fishes[i].delta_f_i / maxDelta;
+        weight_func_val += fishes[i].weight;
+    }
 
     return weight_func_val;
 }
