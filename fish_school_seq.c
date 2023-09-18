@@ -49,16 +49,19 @@ double weight_function_calc (FISH* fishes)
 
     // Calculate the maximum change in the objective function
     for (int i = 0; i < NUM_FISH; i++) {
-        double delta_f_i = fabs(fishes[i].delta_f_i);
-        if (delta_f_i > maxDelta) {
-            maxDelta = delta_f_i;
+        fishes[i].delta_f_i = fishes[i].f_i - fishes[i].prev_f_i;
+        
+        if (fishes[i].delta_f_i > maxDelta) 
+        {
+            maxDelta = fishes[i].delta_f_i;
         }
     }
 
     // Calculate the weight function value for all fish
     double weight_func_val = 0.0;
-    for (int i = 0; i < NUM_FISH; i++) {
-        fishes[i].weight = fishes[i].delta_f_i / maxDelta;
+    for (int i = 0; i < NUM_FISH; i++) 
+    {
+        fishes[i].weight += fishes[i].delta_f_i / maxDelta;
         weight_func_val += fishes[i].weight;
     }
 
@@ -73,14 +76,26 @@ double calc_euc_dist (FISH fish)
 double obj_func (FISH* fishes) 
 {
     double total_sum = 0;
-    int pre_root_val;
-    double post_root_val;
+    // int pre_root_val;
+    // double post_root_val;
 
     for (int i = 0; i < NUM_FISH; i++)
     {
         // total_sum += calc_euc_dist(fishes[i]);
+
+        // Set the current f_i to the previous f_i
+        fishes[i].prev_f_i = fishes[i].f_i;
+
+        // Get the distance of the current fish from the center
         double distance = (double)(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
-        fishes[i].f_i = NUM_FISH * distance;
+
+        // Get the objective function of the current fish
+        double obj_func_val = sqrt(distance);
+
+        // Set the current objective function for the fish
+        fishes[i].f_i = obj_func_val;
+
+        // Add the current f_i to the overall objective function
         total_sum += fishes[i].f_i;
     }
     
@@ -123,7 +138,7 @@ int main(int argc, char* argv[])
         printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
     }
 
-    int weight_func = 0;
+    double weight_func = 0;
     for (int i = 0; i < NUM_STEPS; i++)
     {
         double total_sum = obj_func(fishes);
@@ -132,16 +147,23 @@ int main(int argc, char* argv[])
         {
             printf("Calculating the weight function...");
             
-            // weight_func = rand() % 5 - 1;
-            weight_func = weight_function_calc(fishes);   
+            // Weight function is random value at the very first step
+            
+            weight_func = rand() % 5 - 1;
+            
         }
         else
         {
             // Calculate the objective functions to get the weight function 
+            weight_func = weight_function_calc(fishes);   
         }
 
         for (int j = 0; j < NUM_FISH; j++)
         {
+            if (i == 0)
+            {
+                fishes[j].prev_f_i = weight_func;
+            }
             // FOR EACH FISH
 
             // ADD WEIGHT TO THE FISH USING THE WEIGHT FUNCTION
