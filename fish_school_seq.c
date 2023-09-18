@@ -145,11 +145,14 @@ int main(int argc, char* argv[])
 
         if (i == 0)
         {
-            printf("Calculating the weight function...");
-            
             // Weight function is random value at the very first step
             
             weight_func = rand() % 5 - 1;
+            
+            for (int j = 0; j < NUM_FISH; j++)
+            {
+                swim(fishes[j]);
+            }
             
         }
         else
@@ -157,21 +160,7 @@ int main(int argc, char* argv[])
             // Calculate the objective functions to get the weight function 
             weight_func = weight_function_calc(fishes);   
         }
-
-        for (int j = 0; j < NUM_FISH; j++)
-        {
-            if (i == 0)
-            {
-                fishes[j].prev_f_i = weight_func;
-            }
-            // FOR EACH FISH
-
-            // ADD WEIGHT TO THE FISH USING THE WEIGHT FUNCTION
-            
-
-
-            
-        }
+    
         printf("Objective function at Step %d: %.2f\n", i+1, total_sum);
     }
 
