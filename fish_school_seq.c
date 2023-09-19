@@ -4,8 +4,8 @@
 #include <time.h> 
 #include <math.h>
 
-#define NUM_STEPS 10
-#define NUM_FISH 5
+#define NUM_STEPS 200
+#define NUM_FISH 500
 #define FISH_INIT_WEIGHT 15
 
 // Declare structure for fish, holding coordinates (for now)
@@ -34,11 +34,15 @@ void swim(FISH fish)
     fish.prev_x = fish.x;
     fish.prev_y = fish.y;
 
+    printf("Fish previous coordinates: %d, %d\n", fish.prev_x, fish.prev_y);
+
     fish.x = fish.x + random_x_movement;
     fish.y = fish.y + random_y_movement; 
+
+    printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
 }
 
-double weight_function_calc (FISH* fishes)
+void weight_function (FISH* fishes)
 {
     // double weight_func_val;
 
@@ -57,15 +61,14 @@ double weight_function_calc (FISH* fishes)
         }
     }
 
+    printf("Max delta: %f\n", maxDelta);
+
     // Calculate the weight function value for all fish
     double weight_func_val = 0.0;
     for (int i = 0; i < NUM_FISH; i++) 
     {
-        fishes[i].weight += fishes[i].delta_f_i / maxDelta;
-        weight_func_val += fishes[i].weight;
+        fishes[i].weight += (fishes[i].delta_f_i / maxDelta);
     }
-
-    return weight_func_val;
 }
 
 double calc_euc_dist (FISH fish)
@@ -75,6 +78,7 @@ double calc_euc_dist (FISH fish)
 
 double obj_func (FISH* fishes) 
 {
+    // Thinking we don't need this for this function; we just iterate through the objective functions first
     double total_sum = 0;
     // int pre_root_val;
     // double post_root_val;
@@ -85,12 +89,16 @@ double obj_func (FISH* fishes)
 
         // Set the current f_i to the previous f_i
         fishes[i].prev_f_i = fishes[i].f_i;
+        printf("Fish #%d previous objective function: %f\n", i+1, fishes[i].prev_f_i);
 
         // Get the distance of the current fish from the center
         double distance = (double)(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
 
         // Get the objective function of the current fish
         double obj_func_val = sqrt(distance);
+        printf("Fish #%d new objective function: %f\n", i+1, obj_func_val);
+        // Store previous objective function value
+        fishes[i].prev_f_i = fishes[i].f_i;
 
         // Set the current objective function for the fish
         fishes[i].f_i = obj_func_val;
@@ -138,41 +146,42 @@ int main(int argc, char* argv[])
         printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
     }
 
-    double weight_func = 0;
+    double total_sum;
     for (int i = 0; i < NUM_STEPS; i++)
     {
-        double total_sum = obj_func(fishes);
-
+        
         if (i == 0)
         {
-            printf("Calculating the weight function...");
+            printf("Calculating the weight function...\n");
             
             // Weight function is random value at the very first step
-            
-            weight_func = rand() % 5 - 1;
+            total_sum = obj_func(fishes);
+
+            for (int j = 0; j < NUM_FISH; j++)
+            {
+                double current_weight = fishes[j].weight;
+                double weight_func = rand() % 5 - 1;
+                fishes[j].weight += weight_func;
+                printf("Fish %d weight: %f\n", j+1, fishes[j].weight);
+                swim(fishes[j]);
+            }
             
         }
         else
         {
-            // Calculate the objective functions to get the weight function 
-            weight_func = weight_function_calc(fishes);   
-        }
+            printf("Hello\n");
+            // ADD ALL WEIGHTS FOR FISH 
+            total_sum = obj_func(fishes);
+            weight_function(fishes);   
 
-        for (int j = 0; j < NUM_FISH; j++)
-        {
-            if (i == 0)
+            for (int j = 0; j < NUM_FISH; j++)
             {
-                fishes[j].prev_f_i = weight_func;
+                swim(fishes[j]);
             }
-            // FOR EACH FISH
-
-            // ADD WEIGHT TO THE FISH USING THE WEIGHT FUNCTION
-            
-
-
-            
         }
-        printf("Objective function at Step %d: %.2f\n", i+1, total_sum);
+        
+        printf("Objective function at Step %d: %f\n", i+1, total_sum);
+        
     }
 
     clock_t end = clock();
