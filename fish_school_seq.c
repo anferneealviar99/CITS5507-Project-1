@@ -34,12 +34,12 @@ void swim(FISH fish)
     fish.prev_x = fish.x;
     fish.prev_y = fish.y;
 
-    printf("Fish previous coordinates: %d, %d\n", fish.prev_x, fish.prev_y);
+    // printf("Fish previous coordinates: %d, %d\n", fish.prev_x, fish.prev_y);
 
     fish.x = fish.x + random_x_movement;
     fish.y = fish.y + random_y_movement; 
 
-    printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
+    // printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
 }
 
 void weight_function (FISH* fishes)
@@ -61,7 +61,7 @@ void weight_function (FISH* fishes)
         }
     }
 
-    printf("Max delta: %f\n", maxDelta);
+    // printf("Max delta: %f\n", maxDelta);
 
     // Calculate the weight function value for all fish
     double weight_func_val = 0.0;
@@ -89,14 +89,14 @@ double obj_func (FISH* fishes)
 
         // Set the current f_i to the previous f_i
         fishes[i].prev_f_i = fishes[i].f_i;
-        printf("Fish #%d previous objective function: %f\n", i+1, fishes[i].prev_f_i);
+        // printf("Fish #%d previous objective function: %f\n", i+1, fishes[i].prev_f_i);
 
         // Get the distance of the current fish from the center
         double distance = (double)(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
 
         // Get the objective function of the current fish
         double obj_func_val = sqrt(distance);
-        printf("Fish #%d new objective function: %f\n", i+1, obj_func_val);
+        // printf("Fish #%d new objective function: %f\n", i+1, obj_func_val);
         // Store previous objective function value
         fishes[i].prev_f_i = fishes[i].f_i;
 
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
         fishes[i].weight = FISH_INIT_WEIGHT; 
         fishes[i].f_i = calc_euc_dist(fishes[i]);
 
-        printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
+        // printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
     }
 
     double total_sum;
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
         
         if (i == 0)
         {
-            printf("Calculating the weight function...\n");
+            // printf("Calculating the weight function...\n");
             
             // Weight function is random value at the very first step
             total_sum = obj_func(fishes);
@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
             }
         }
         
-        printf("Objective function at Step %d: %f\n", i+1, total_sum);
+        // printf("Objective function at Step %d: %f\n", i+1, total_sum);
         
     }
 
