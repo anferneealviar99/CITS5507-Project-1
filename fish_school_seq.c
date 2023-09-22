@@ -23,50 +23,89 @@ typedef struct _fish {
 
 //TODO Collective Action
 
-void swim(FISH fish)
-{
-    int random_x_int = rand() % 201;
-    int random_y_int = rand() % 201;
+// void swim(FISH fish)
+// {
+//     int random_x_int = rand() % 201;
+//     int random_y_int = rand() % 201;
 
-    double random_x_movement = (random_x_int / 1000.0) - 0.1;
-    double random_y_movement = (random_y_int / 1000.0) - 0.1;
+//     double random_x_movement = (random_x_int / 1000.0) - 0.1;
+//     double random_y_movement = (random_y_int / 1000.0) - 0.1;
 
-    fish.prev_x = fish.x;
-    fish.prev_y = fish.y;
+//     fish.prev_x = fish.x;
+//     fish.prev_y = fish.y;
 
-    // printf("Fish previous coordinates: %d, %d\n", fish.prev_x, fish.prev_y);
+//     // printf("Fish previous coordinates: %d, %d\n", fish.prev_x, fish.prev_y);
 
-    fish.x = fish.x + random_x_movement;
-    fish.y = fish.y + random_y_movement; 
+//     fish.x = fish.x + random_x_movement;
+//     fish.y = fish.y + random_y_movement; 
 
-    // printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
+//     // printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
+// }
+
+// Function for parallelized fish swimming
+void swim(FISH* fishes, int num_fish) {
+    #pragma omp parallel for num_threads(NUM_THREADS)
+    for (int i = 0; i < num_fish; i++) {
+        int random_x_int = rand() % 201;
+        int random_y_int = rand() % 201;
+        
+        double random_x_movement = (random_x_int / 1000.0) - 0.1;
+        double random_y_movement = (random_y_int / 1000.0) - 0.1;
+        
+        fishes[i].prev_x = fishes[i].x;
+        fishes[i].prev_y = fishes[i].y;
+        
+        fishes[i].x = fishes[i].x + random_x_movement;
+        fishes[i].y = fishes[i].y + random_y_movement;
+        // printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
+    }
 }
 
-void weight_function (FISH* fishes)
-{
-    // double weight_func_val;
+// void weight_function (FISH* fishes)
+// {
+//     // double weight_func_val;
 
-    // Calculate the quotient of a fish's change in objective function 
-    // and the maximum change in objective function when accounting for all fish 
+//     // Calculate the quotient of a fish's change in objective function 
+//     // and the maximum change in objective function when accounting for all fish 
 
+//     double maxDelta = 0.0;
+
+//     // Calculate the maximum change in the objective function
+//     for (int i = 0; i < NUM_FISH; i++) {
+//         fishes[i].delta_f_i = fishes[i].f_i - fishes[i].prev_f_i;
+        
+//         if (fishes[i].delta_f_i > maxDelta) 
+//         {
+//             maxDelta = fishes[i].delta_f_i;
+//         }
+//     }
+
+//     // printf("Max delta: %f\n", maxDelta);
+
+//     // Calculate the weight function value for all fish
+//     double weight_func_val = 0.0;
+//     for (int i = 0; i < NUM_FISH; i++) 
+//     {
+//         fishes[i].weight += (fishes[i].delta_f_i / maxDelta);
+//     }
+// }
+
+// Function for parallelized weight_function
+void weight_function(FISH* fishes, int num_fish) {
     double maxDelta = 0.0;
 
-    // Calculate the maximum change in the objective function
-    for (int i = 0; i < NUM_FISH; i++) {
+    #pragma omp parallel for num_threads(NUM_THREADS) reduction(max:maxDelta)
+    for (int i = 0; i < num_fish; i++) {
         fishes[i].delta_f_i = fishes[i].f_i - fishes[i].prev_f_i;
-        
-        if (fishes[i].delta_f_i > maxDelta) 
-        {
+
+        if (fishes[i].delta_f_i > maxDelta) {
             maxDelta = fishes[i].delta_f_i;
         }
     }
-
     // printf("Max delta: %f\n", maxDelta);
 
-    // Calculate the weight function value for all fish
-    double weight_func_val = 0.0;
-    for (int i = 0; i < NUM_FISH; i++) 
-    {
+    #pragma omp parallel for num_threads(NUM_THREADS)
+    for (int i = 0; i < num_fish; i++) {
         fishes[i].weight += (fishes[i].delta_f_i / maxDelta);
     }
 }
@@ -157,13 +196,14 @@ int main(int argc, char* argv[])
             // Weight function is random value at the very first step
             total_sum = obj_func(fishes);
 
+            #pragma omp parallel for num_threads(NUM_THREADS)
             for (int j = 0; j < NUM_FISH; j++)
             {
                 double current_weight = fishes[j].weight;
                 double weight_func = rand() % 5 - 1;
                 fishes[j].weight += weight_func;
                 printf("Fish %d weight: %f\n", j+1, fishes[j].weight);
-                swim(fishes[j]);
+                swim(fishes, NUM_FISH);
             }
             
         }
@@ -172,11 +212,13 @@ int main(int argc, char* argv[])
             printf("Hello\n");
             // ADD ALL WEIGHTS FOR FISH 
             total_sum = obj_func(fishes);
-            weight_function(fishes);   
+            // weight_function(fishes); 
+            weight_function(fishes, NUM_FISH);  
 
             for (int j = 0; j < NUM_FISH; j++)
             {
-                swim(fishes[j]);
+                // swim(fishes[j]);
+                swim(fishes, NUM_FISH);
             }
         }
         
