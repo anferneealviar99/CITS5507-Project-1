@@ -7,6 +7,7 @@
 #define NUM_STEPS 200
 #define NUM_FISH 500
 #define FISH_INIT_WEIGHT 15
+#define NUM_THREADS 4
 
 // Declare structure for fish, holding coordinates (for now)
 typedef struct _fish {
