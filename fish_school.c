@@ -37,7 +37,7 @@ double CollectiveAction(FISH* fishes, int num_fish, double total_obj_func) {
             double weight = fishes[i].weight;
             double distance = sqrt(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
 
-            total_distance_times_weight += (distance * weight)
+            total_distance_times_weight += (distance * weight);
 
         }
     }
