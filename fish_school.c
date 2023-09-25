@@ -24,6 +24,26 @@ typedef struct _fish {
 } FISH;
 
 //TODO Collective Action
+void CollectiveAction(FISH* fishes, int num_fish, double* barycenter_x, double* barycenter_y) {
+    double total_weighted_x = 0.0;
+    double total_weighted_y = 0.0;
+    double total_weighted_distance = 0.0;
+
+    for (int i = 0; i < num_fish; i++) {
+
+        double weight = fishes[i].weight;
+        double distance = sqrt(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
+
+        total_weighted_x += fishes[i].x * weight;
+        total_weighted_y += fishes[i].y * weight;
+        total_weighted_distance += distance;
+
+    }
+
+    // Calculate the barycenter
+    double barycenter_x = total_weighted_x / total_weighted_distance;
+    double barycenter_y = total_weighted_y / total_weighted_distance;
+}
 
 // void swim(FISH fish)
 // {
@@ -212,7 +232,14 @@ int main(int argc, char* argv[])
     }
 
     double total_sum;
+<<<<<<< HEAD
     
+=======
+    // for collective action
+    double barycenter_x;
+    double barycenter_y;
+    // ------
+>>>>>>> 35134d1d1661f65e02bcb9c11f1edbde512c1e2c
 
     for (int i = 0; i < NUM_STEPS; i++)
     {
@@ -245,7 +272,17 @@ int main(int argc, char* argv[])
             // weight_function(fishes); 
             weight_function(fishes, NUM_FISH);  
 
+<<<<<<< HEAD
             swim(fishes, NUM_FISH);
+=======
+            for (int j = 0; j < NUM_FISH; j++)
+            {
+                // swim(fishes[j]);
+                swim(fishes, NUM_FISH);
+            }
+            CollectiveAction(fishes, NUM_FISH, &barycenter_x, &barycenter_y);
+            printf("Barycenter at Step %d: %f\n", i+1, barycenter_x, barycenter_y);
+>>>>>>> 35134d1d1661f65e02bcb9c11f1edbde512c1e2c
         }
         
         // printf("Objective function at Step %d: %f\n", i+1, total_sum);
