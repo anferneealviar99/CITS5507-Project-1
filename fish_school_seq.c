@@ -6,7 +6,7 @@
 #include <math.h>
 
 #define NUM_STEPS 10
-#define NUM_FISH 10000000
+#define NUM_FISH 1000000
 #define FISH_INIT_WEIGHT 15
 
 // Declare structure for fish, holding coordinates (for now)
@@ -42,7 +42,7 @@ double CollectiveAction(FISH* fishes, int num_fish, double total_obj_func) {
 
 
 
-// Function for parallelized fish swimming
+// Swimming
 void swim(FISH* fishes, int num_fish) {
     
     for (int i = 0; i < num_fish; i++) 
@@ -63,7 +63,7 @@ void swim(FISH* fishes, int num_fish) {
 }
 
 
-// Function for parallelized weight_function
+// Weight Function
 void weight_function(FISH* fishes, int num_fish) 
 {
     double maxDelta = 0.0;
@@ -93,11 +93,8 @@ double obj_func (FISH* fishes)
 
     for (int i = 0; i < NUM_FISH; i++)
     {
-        // total_sum += calc_euc_dist(fishes[i]);
-
         // Set the current f_i to the previous f_i
         fishes[i].prev_f_i = fishes[i].f_i;
-        // printf("Fish #%d previous objective function: %f\n", i+1, fishes[i].prev_f_i);
 
         // Get the distance of the current fish from the center
         double distance = (double)(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
@@ -118,7 +115,6 @@ double obj_func (FISH* fishes)
     return total_sum;
 }
 
-// void main(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
     FISH *fishes;
@@ -139,7 +135,6 @@ int main(int argc, char* argv[])
         fishes[i].weight = FISH_INIT_WEIGHT; 
         fishes[i].f_i = calc_euc_dist(fishes[i]);
 
-        // printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
     }
 
     double total_sum;
@@ -149,9 +144,6 @@ int main(int argc, char* argv[])
         
         if (i == 0)
         {
-            // printf("Calculating the weight function...\n");
-            
-            // Weight function is random value at the very first step
             total_sum = obj_func(fishes);
             for (int j = 0; j < NUM_FISH; j++)
             {
@@ -165,19 +157,18 @@ int main(int argc, char* argv[])
         }
         else
         {
-            // ADD ALL WEIGHTS FOR FISH 
+            // Get total sum for barycentre 
             total_sum = obj_func(fishes);
-            // weight_function(fishes); 
+
+            // Get weights
             weight_function(fishes, NUM_FISH);  
 
+            // Swim
             swim(fishes, NUM_FISH);
 
+            // Calc barycentre
             double barycentre = CollectiveAction(fishes, NUM_FISH, total_sum);
-            
-            // printf("Barycentre at Step %d: %f\n", i+1, barycentre);
         }
-        
-        // printf("Objective function at Step %d: %f\n", i+1, total_sum);
         
     }
 
