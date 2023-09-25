@@ -1,3 +1,4 @@
+// author: Anfernee Pontilan Alviar (22886082), Vicky Chow (23638279)
 #include <stdio.h>
 #include <omp.h>
 #include <stdlib.h>
