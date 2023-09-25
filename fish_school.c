@@ -4,8 +4,8 @@
 #include <time.h> 
 #include <math.h>
 
-#define NUM_STEPS 200
-#define NUM_FISH 500
+#define NUM_STEPS 10
+#define NUM_FISH 1000000
 #define FISH_INIT_WEIGHT 15
 #define NUM_THREADS 4
 
@@ -228,7 +228,7 @@ int main(int argc, char* argv[])
                 double current_weight = fishes[j].weight;
                 double weight_func = rand() % 5 - 1;
                 fishes[j].weight += weight_func;
-                printf("Fish %d weight: %f\n", j+1, fishes[j].weight);
+
                 swim(fishes, NUM_FISH);
             }
             
