@@ -1,13 +1,14 @@
 #include <stdio.h>
+#include <omp.h>
 #include <stdlib.h>
 #include <unistd.h> 
 #include <time.h> 
 #include <math.h>
 
 #define NUM_STEPS 10
-#define NUM_FISH 1000000
+#define NUM_FISH 10000
 #define FISH_INIT_WEIGHT 15
-#define NUM_THREADS 4
+#define NUM_THREADS 10
 
 // Declare structure for fish, holding coordinates (for now)
 typedef struct _fish {
@@ -45,20 +46,28 @@ typedef struct _fish {
 
 // Function for parallelized fish swimming
 void swim(FISH* fishes, int num_fish) {
-    #pragma omp parallel for num_threads(NUM_THREADS)
-    for (int i = 0; i < num_fish; i++) {
-        int random_x_int = rand() % 201;
-        int random_y_int = rand() % 201;
-        
-        double random_x_movement = (random_x_int / 1000.0) - 0.1;
-        double random_y_movement = (random_y_int / 1000.0) - 0.1;
-        
-        fishes[i].prev_x = fishes[i].x;
-        fishes[i].prev_y = fishes[i].y;
-        
-        fishes[i].x = fishes[i].x + random_x_movement;
-        fishes[i].y = fishes[i].y + random_y_movement;
-        // printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
+    #pragma omp parallel 
+    {
+        #pragma omp for
+        for (int i = 0; i < num_fish; i++) 
+        {
+            
+            if (fishes[i].delta_f_i >= 0.0)
+            {
+                int random_x_int = rand() % 201;
+                int random_y_int = rand() % 201;
+                
+                double random_x_movement = (random_x_int / 1000.0) - 0.1;
+                double random_y_movement = (random_y_int / 1000.0) - 0.1;
+                
+                fishes[i].prev_x = fishes[i].x;
+                fishes[i].prev_y = fishes[i].y;
+                
+                fishes[i].x = fishes[i].x + random_x_movement;
+                fishes[i].y = fishes[i].y + random_y_movement;
+                // printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
+            }
+        }
     }
 }
 
@@ -95,19 +104,25 @@ void swim(FISH* fishes, int num_fish) {
 void weight_function(FISH* fishes, int num_fish) {
     double maxDelta = 0.0;
 
-    #pragma omp parallel for num_threads(NUM_THREADS) reduction(max:maxDelta)
-    for (int i = 0; i < num_fish; i++) {
-        fishes[i].delta_f_i = fishes[i].f_i - fishes[i].prev_f_i;
+    #pragma omp parallel
+    { 
+        #pragma omp for // reduction(max:maxDelta)
+        for (int i = 0; i < num_fish; i++) {
+            fishes[i].delta_f_i = fishes[i].f_i - fishes[i].prev_f_i;
 
-        if (fishes[i].delta_f_i > maxDelta) {
-            maxDelta = fishes[i].delta_f_i;
+            if (fishes[i].delta_f_i > maxDelta) {
+                maxDelta = fishes[i].delta_f_i;
+            }
         }
-    }
     // printf("Max delta: %f\n", maxDelta);
+    }
 
-    #pragma omp parallel for num_threads(NUM_THREADS)
-    for (int i = 0; i < num_fish; i++) {
-        fishes[i].weight += (fishes[i].delta_f_i / maxDelta);
+    #pragma omp parallel 
+    {   
+        #pragma omp for
+        for (int i = 0; i < num_fish; i++) {
+            fishes[i].weight += (fishes[i].delta_f_i / maxDelta);
+        }
     }
 }
 
@@ -123,30 +138,34 @@ double obj_func (FISH* fishes)
     // int pre_root_val;
     // double post_root_val;
 
-    for (int i = 0; i < NUM_FISH; i++)
+    #pragma omp parallel
     {
-        // total_sum += calc_euc_dist(fishes[i]);
+        #pragma omp for 
+        for (int i = 0; i < NUM_FISH; i++)
+        {
+            // total_sum += calc_euc_dist(fishes[i]);
 
-        // Set the current f_i to the previous f_i
-        fishes[i].prev_f_i = fishes[i].f_i;
-        // printf("Fish #%d previous objective function: %f\n", i+1, fishes[i].prev_f_i);
+            // Set the current f_i to the previous f_i
+            fishes[i].prev_f_i = fishes[i].f_i;
+            // printf("Fish #%d previous objective function: %f\n", i+1, fishes[i].prev_f_i);
 
-        // Get the distance of the current fish from the center
-        double distance = (double)(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
+            // Get the distance of the current fish from the center
+            double distance = (double)(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
 
-        // Get the objective function of the current fish
-        double obj_func_val = sqrt(distance);
-        // printf("Fish #%d new objective function: %f\n", i+1, obj_func_val);
-        // Store previous objective function value
-        fishes[i].prev_f_i = fishes[i].f_i;
+            // Get the objective function of the current fish
+            double obj_func_val = sqrt(distance);
+            // printf("Fish #%d new objective function: %f\n", i+1, obj_func_val);
+            // Store previous objective function value
+            fishes[i].prev_f_i = fishes[i].f_i;
 
-        // Set the current objective function for the fish
-        fishes[i].f_i = obj_func_val;
+            // Set the current objective function for the fish
+            fishes[i].f_i = obj_func_val;
 
-        // Add the current f_i to the overall objective function
-        total_sum += fishes[i].f_i;
-    }
-    
+            // Add the current f_i to the overall objective function
+            total_sum += fishes[i].f_i;
+        }
+    }   
+
     return total_sum;
 }
 
@@ -173,20 +192,28 @@ int main(int argc, char* argv[])
 
     clock_t begin = clock();
     // Generate positions for the fish
-    for (int i = 0; i < NUM_FISH; i++)
+    omp_set_num_threads(NUM_THREADS);
+
+    #pragma omp parallel
     {
-        int x_rand_num = rand() % 201 - 100;
-        int y_rand_num = rand() % 201 - 100;
+        #pragma omp for
+        for (int i = 0; i < NUM_FISH; i++)
+        {
+            int x_rand_num = rand() % 201 - 100;
+            int y_rand_num = rand() % 201 - 100;
 
-        fishes[i].x = x_rand_num;
-        fishes[i].y = y_rand_num;
-        fishes[i].weight = FISH_INIT_WEIGHT; 
-        fishes[i].f_i = calc_euc_dist(fishes[i]);
+            fishes[i].x = x_rand_num;
+            fishes[i].y = y_rand_num;
+            fishes[i].weight = FISH_INIT_WEIGHT; 
+            fishes[i].f_i = calc_euc_dist(fishes[i]);
 
-        // printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
+            // printf("Fish #%d coordinates: (%d, %d)\n", i+1, fishes[i].x, fishes[i].y);
+        }
     }
 
     double total_sum;
+    
+
     for (int i = 0; i < NUM_STEPS; i++)
     {
         
@@ -197,30 +224,28 @@ int main(int argc, char* argv[])
             // Weight function is random value at the very first step
             total_sum = obj_func(fishes);
 
-            #pragma omp parallel for num_threads(NUM_THREADS)
-            for (int j = 0; j < NUM_FISH; j++)
+            #pragma omp parallel 
             {
-                double current_weight = fishes[j].weight;
-                double weight_func = rand() % 5 - 1;
-                fishes[j].weight += weight_func;
+                #pragma omp for 
+                for (int j = 0; j < NUM_FISH; j++)
+                {
+                    double current_weight = fishes[j].weight;
+                    double weight_func = rand() % 5 - 1;
+                    fishes[j].weight += weight_func;
 
-                swim(fishes, NUM_FISH);
+                }
             }
             
+            swim(fishes, NUM_FISH);
         }
         else
         {
-            printf("Hello\n");
             // ADD ALL WEIGHTS FOR FISH 
             total_sum = obj_func(fishes);
             // weight_function(fishes); 
             weight_function(fishes, NUM_FISH);  
 
-            for (int j = 0; j < NUM_FISH; j++)
-            {
-                // swim(fishes[j]);
-                swim(fishes, NUM_FISH);
-            }
+            swim(fishes, NUM_FISH);
         }
         
         // printf("Objective function at Step %d: %f\n", i+1, total_sum);
