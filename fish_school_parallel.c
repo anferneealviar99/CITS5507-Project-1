@@ -193,8 +193,8 @@ int main(int argc, char* argv[])
     fishes = (FISH*) malloc(NUM_FISH * sizeof(FISH));
 
     double start = omp_get_wtime();
+    
     // Generate positions for the fish
-    omp_set_num_threads(NUM_THREADS);
 
     #pragma omp parallel
     {

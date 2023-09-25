@@ -25,20 +25,17 @@ typedef struct _fish {
 double CollectiveAction(FISH* fishes, int num_fish, double total_obj_func) {
     
     double total_distance_times_weight = 0.0;
-
-    #pragma omp parallel
+    
+    for (int i = 0; i < num_fish; i++) 
     {
-        #pragma omp for
-        for (int i = 0; i < num_fish; i++) 
-        {
 
-            double weight = fishes[i].weight;
-            double distance = sqrt(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
+        double weight = fishes[i].weight;
+        double distance = sqrt(fishes[i].x * fishes[i].x + fishes[i].y * fishes[i].y);
 
-            total_distance_times_weight += (distance * weight);
+        total_distance_times_weight += (distance * weight);
 
-        }
     }
+
     // Calculate the barycenter
     double barycenter = total_distance_times_weight / total_obj_func;
 }
@@ -80,13 +77,8 @@ void weight_function(FISH* fishes, int num_fish)
         }
     }
 
-
-    #pragma omp parallel 
-    {   
-        #pragma omp for
-        for (int i = 0; i < num_fish; i++) {
-            fishes[i].weight += (fishes[i].delta_f_i / maxDelta);
-        }
+    for (int i = 0; i < num_fish; i++) {
+        fishes[i].weight += (fishes[i].delta_f_i / maxDelta);
     }
 }
 
