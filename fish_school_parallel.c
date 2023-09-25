@@ -6,7 +6,7 @@
 #include <math.h>
 
 #define NUM_STEPS 10
-#define NUM_FISH 100000
+#define NUM_FISH 10000000
 #define FISH_INIT_WEIGHT 15
 
 // Declare structure for fish, holding coordinates (for now)
