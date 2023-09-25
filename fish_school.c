@@ -6,9 +6,8 @@
 #include <math.h>
 
 #define NUM_STEPS 10
-#define NUM_FISH 10000
+#define NUM_FISH 100000
 #define FISH_INIT_WEIGHT 15
-#define NUM_THREADS 10
 
 // Declare structure for fish, holding coordinates (for now)
 typedef struct _fish {
@@ -71,23 +70,19 @@ void swim(FISH* fishes, int num_fish) {
     {
         #pragma omp for
         for (int i = 0; i < num_fish; i++) 
-        {
-            
-            if (fishes[i].delta_f_i >= 0.0)
-            {
-                int random_x_int = rand() % 201;
-                int random_y_int = rand() % 201;
+        {   
+            int random_x_int = rand() % 201;
+            int random_y_int = rand() % 201;
                 
-                double random_x_movement = (random_x_int / 1000.0) - 0.1;
-                double random_y_movement = (random_y_int / 1000.0) - 0.1;
+            double random_x_movement = (random_x_int / 1000.0) - 0.1;
+            double random_y_movement = (random_y_int / 1000.0) - 0.1;
                 
-                fishes[i].prev_x = fishes[i].x;
-                fishes[i].prev_y = fishes[i].y;
+            fishes[i].prev_x = fishes[i].x;
+            fishes[i].prev_y = fishes[i].y;
                 
-                fishes[i].x = fishes[i].x + random_x_movement;
-                fishes[i].y = fishes[i].y + random_y_movement;
-                // printf("Fish current coordinates: %d, %d\n", fish.x, fish.y);
-            }
+            fishes[i].x = fishes[i].x + random_x_movement;
+            fishes[i].y = fishes[i].y + random_y_movement;
+             
         }
     }
 }
@@ -197,21 +192,7 @@ int main(int argc, char* argv[])
 
     fishes = (FISH*) malloc(NUM_FISH * sizeof(FISH));
 
-    // fishes->x=1;
-    // fishes->y=1;
-
-    // (fishes+1)->x=2;
-    // (fishes+1)->y=2;
-
-    // printf("x coord of 1st fish=%d\n", fishes->x);
-    // printf("x coord of 2nd fish=%d\n", (fishes+1)->x); 
-
-
-    // free(fishes);
-
-    srand(time(NULL));
-
-    clock_t begin = clock();
+    double start = omp_get_wtime();
     // Generate positions for the fish
     omp_set_num_threads(NUM_THREADS);
 
@@ -274,18 +255,18 @@ int main(int argc, char* argv[])
 
             double barycentre = CollectiveAction(fishes, NUM_FISH, total_sum);
             
-            printf("Barycentre at Step %d: %f\n", i+1, barycentre);
+            // printf("Barycentre at Step %d: %f\n", i+1, barycentre);
         }
         
         // printf("Objective function at Step %d: %f\n", i+1, total_sum);
         
     }
 
-    clock_t end = clock();
+    double end = omp_get_wtime();
 
-    double time_spent = (double) (end-begin) / CLOCKS_PER_SEC;
+    double time_taken= end-start;
 
     free(fishes);
 
-    printf("Time spent: %.2f\n", time_spent); 
+    printf("Time spent: %.2f\n", time_taken); 
 }
