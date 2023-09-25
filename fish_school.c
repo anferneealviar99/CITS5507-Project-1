@@ -232,14 +232,11 @@ int main(int argc, char* argv[])
     }
 
     double total_sum;
-<<<<<<< HEAD
     
-=======
     // for collective action
     double barycenter_x;
     double barycenter_y;
     // ------
->>>>>>> 35134d1d1661f65e02bcb9c11f1edbde512c1e2c
 
     for (int i = 0; i < NUM_STEPS; i++)
     {
@@ -272,17 +269,11 @@ int main(int argc, char* argv[])
             // weight_function(fishes); 
             weight_function(fishes, NUM_FISH);  
 
-<<<<<<< HEAD
             swim(fishes, NUM_FISH);
-=======
-            for (int j = 0; j < NUM_FISH; j++)
-            {
-                // swim(fishes[j]);
-                swim(fishes, NUM_FISH);
-            }
+
             CollectiveAction(fishes, NUM_FISH, &barycenter_x, &barycenter_y);
+            
             printf("Barycenter at Step %d: %f\n", i+1, barycenter_x, barycenter_y);
->>>>>>> 35134d1d1661f65e02bcb9c11f1edbde512c1e2c
         }
         
         // printf("Objective function at Step %d: %f\n", i+1, total_sum);
